@@ -22,11 +22,24 @@ char GetRandomGender();
 char GetRandomCharacter();
 int GetRandomVintage();
 
-void DeleteList(Person*);
+Person* DeleteList(Person*);
 
 Person* DeleteSpecificElement(Person*);
 Person* Delete(Person*, char[], char[], char[], int);
-Person* Delete(Person* pHead);
+Person* Delete(Person*);
+
+Person* SortList(Person*);
+
+Person* Sort(void (*f)(Person*&, Person*&, Person*&), Person*);
+void SortGenderAsc(Person*&, Person*&, Person*&);
+void SortGenderDesc(Person*&, Person*&, Person*&);
+void SortLastNameAsc(Person*&, Person*&, Person*&);
+void SortLastNameDesc(Person*&, Person*&, Person*&);
+void SortFirstNameAsc(Person*&, Person*&, Person*&);
+void SortFirstNameDesc(Person*&, Person*&, Person*&);
+void SortVintageAsc(Person*&, Person*&, Person*&);
+void SortVintageDesc(Person*&, Person*&, Person*&);
+void SwitchElements(Person*&, Person*&, Person*&);
 
 int main()
 {
@@ -49,7 +62,7 @@ int main()
 			break;
 		case 2:
 			// Liste loeschen
-			DeleteList(pHead);
+			pHead = DeleteList(pHead);
 			break;
 		case 3:
 			// Spezifisches Element loeschen
@@ -57,6 +70,7 @@ int main()
 			break;
 		case 4:
 			// Liste sortieren
+			pHead = SortList(pHead);
 			break;
 		case 5:
 			// Liste ausgeben
@@ -153,21 +167,6 @@ Person* CreateList()
 
 	}
 
-	//// Liste ausgeben
-	Person* pLast = pStart->pPrev;
-	for (struPerson* pHead = pStart; pHead != pLast; pHead = pHead->pNext)
-	{
-		printf("Gender = %c\n", pHead->Gender[0]);
-		printf("LastName = %c\n", pHead->LastName[0]);
-		printf("FirstName = %c\n", pHead->FirstName[0]);
-		printf("Vintage = %i\n", pHead->Vintage);
-	}
-	printf("Gender = %c\n", pLast->Gender[0]);
-	printf("LastName = %c\n", pLast->LastName[0]);
-	printf("FirstName = %c\n", pLast->FirstName[0]);
-	printf("Vintage = %i\n", pLast->Vintage);
-
-
 	return pFirst;
 }
 
@@ -189,7 +188,7 @@ int GetRandomVintage()
 // Liste loeschen
 //****************
 
-void DeleteList(Person* pHead)
+Person* DeleteList(Person* pHead)
 {
 	int deleteCounter = 0;
 	Person* pLast = pHead->pPrev;
@@ -203,6 +202,8 @@ void DeleteList(Person* pHead)
 		deleteCounter++;
 	}
 	printf("\nListe wurde geloescht. Anzahl: %i\n", deleteCounter);
+
+	return NULL;
 }
 
 // Spezifisches Element loeschen
@@ -271,4 +272,199 @@ Person* Delete(Person* pHead)
 	free(pHead);
 
 	return pNewHead;
+}
+
+// Liste Sortieren
+//*****************
+
+Person* SortList(Person* pHead)
+{
+	int sortBy = 0;
+	int direction = 0;
+
+	printf("\nNach welchem Kriterium moechten Sie sortieren?\n\n");
+	printf("Geschlecht        > 1\n");
+	printf("Nachname          > 2\n");
+	printf("Vorname           > 3\n");
+	printf("Jahrgang          > 4\n");
+	printf("\nIhre Auswahl      > ");
+	scanf_s("%i", &sortBy);
+	_fgetchar();
+
+	printf("\nMoechten Sie auf- oder absteigend sortieren?\n\n");
+	printf("Aufsteigend       > 1\n");
+	printf("Absteigend        > 2\n");
+	printf("\nIhre Auswahl      > ");
+	scanf_s("%i", &direction);
+	_fgetchar();
+
+
+	switch (sortBy)
+	{
+	case 1:
+		pHead = direction == 1 ? Sort(SortGenderAsc, pHead) : Sort(SortGenderDesc, pHead);
+		break;
+	case 2:
+		pHead = direction == 1 ? Sort(SortLastNameAsc, pHead) : Sort(SortLastNameDesc, pHead);
+		break;
+	case 3:
+		pHead = direction == 1 ? Sort(SortFirstNameAsc, pHead) : Sort(SortFirstNameDesc, pHead);
+		break;
+	case 4:
+		pHead = direction == 1 ? Sort(SortVintageAsc, pHead) : Sort(SortVintageDesc, pHead);
+		break;
+	}
+
+
+
+
+
+	//// Liste ausgeben
+	Person* pLast = pHead->pPrev;
+	for (struPerson* pHeadx = pHead; pHeadx != pLast; pHeadx = pHeadx->pNext)
+	{
+		printf("Gender = %c\n", pHeadx->Gender[0]);
+		printf("LastName = %c\n", pHeadx->LastName[0]);
+		printf("FirstName = %c\n", pHeadx->FirstName[0]);
+		printf("Vintage = %i\n", pHeadx->Vintage);
+	}
+	printf("Gender = %c\n", pLast->Gender[0]);
+	printf("LastName = %c\n", pLast->LastName[0]);
+	printf("FirstName = %c\n", pLast->FirstName[0]);
+	printf("Vintage = %i\n", pLast->Vintage);
+
+	return pHead;
+}
+
+
+Person* Sort(void(*f)(Person*&, Person*&, Person*&), Person* pHead)
+{
+	Person* pHead1 = pHead;
+	Person* pHead2 = pHead;
+	Person* pLast = pHead;
+
+	do
+	{
+		pHead1 = pHead1->pNext;
+		do
+		{
+			pHead2 = pHead2->pNext;
+
+			(*f)(pHead1, pHead2, pLast);
+		} 
+		while (pHead2 != pLast);
+	} 
+	while (pHead1 != pLast);
+
+	return pLast->pNext;
+}
+
+void SortGenderAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->Gender[0] < pHead2->Gender[0])
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortGenderDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->Gender[0] > pHead2->Gender[0])
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortLastNameAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->LastName[0] < pHead2->LastName[0])
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortLastNameDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->LastName[0] > pHead2->LastName[0])
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortFirstNameAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->FirstName[0] < pHead2->FirstName[0])
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortFirstNameDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->FirstName[0] > pHead2->FirstName[0])
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortVintageAsc(Person* &pHead1, Person* &pHead2, Person* &pLast)
+{
+	if (pHead1->Vintage < pHead2->Vintage)
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SortVintageDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	if (pHead1->Vintage > pHead2->Vintage)
+	{
+		SwitchElements(pHead1, pHead2, pLast);
+	}
+}
+
+void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
+{
+	Person* pTmp1Prev = pHead1->pPrev;
+	Person* pTmp1Next = pHead1->pNext;
+	Person* pTmp2Prev = pHead2->pPrev;
+	Person* pTmp2Next = pHead2->pNext;
+
+	if (pHead1->pNext == pHead2)
+	{
+		pHead1->pNext = pTmp2Next;
+		pHead1->pPrev = pHead2;
+
+		pHead2->pNext = pHead1;
+		pHead2->pPrev = pTmp1Prev;
+	}
+	else if (pHead2->pNext == pHead1)
+	{
+		pHead1->pNext = pHead2;
+		pHead1->pPrev = pTmp2Prev;
+
+		pHead2->pNext = pTmp1Next;
+		pHead2->pPrev = pHead1;
+	}
+	else
+	{
+		pHead1->pNext = pTmp2Next;
+		pHead1->pPrev = pTmp2Prev;
+
+		pHead2->pNext = pTmp1Next;
+		pHead2->pPrev = pTmp1Prev;
+	}
+
+	pHead1->pPrev->pNext = pHead1;
+	pHead1->pNext->pPrev = pHead1;
+
+	pHead2->pPrev->pNext = pHead2;
+	pHead2->pNext->pPrev = pHead2;
+
+	Person* pTmp = pHead1;
+	pHead1 = pHead2;
+	pHead2 = pTmp;
+
+	if (pHead1 == pLast) pLast = pHead2;
+	else if (pHead2 == pLast) pLast = pHead1;
 }
