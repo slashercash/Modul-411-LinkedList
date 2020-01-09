@@ -14,23 +14,19 @@ typedef struct Person {
 	struct Person* pPrev;
 } struPerson;
 
-void ShowMenu();
-int GetUsersChoice();
-
 Person* CreateList();
-char GetRandomGender();
-char GetRandomCharacter();
-int GetRandomVintage();
-
 Person* DeleteList(Person*);
-
 Person* DeleteSpecificElement(Person*);
 Person* Delete(Person*, char[], char[], char[], int);
 Person* Delete(Person*);
-
 Person* SortList(Person*);
-
 Person* Sort(void (*f)(Person*&, Person*&, Person*&), Person*);
+int GetRandomVintage();
+int GetUsersChoice();
+char GetRandomGender();
+char GetRandomCharacter();
+void DisplayList(Person*);
+void ShowMenu();
 void SortGenderAsc(Person*&, Person*&, Person*&);
 void SortGenderDesc(Person*&, Person*&, Person*&);
 void SortLastNameAsc(Person*&, Person*&, Person*&);
@@ -46,7 +42,6 @@ int main()
 	// Initialize the pseudo-random number-generator and use the current time since midnight in milliseconds as the seed
 	srand((unsigned)time(NULL));
 	Person* pHead = NULL;
-
 
 	int repeat = 1;
 
@@ -74,6 +69,7 @@ int main()
 			break;
 		case 5:
 			// Liste ausgeben
+			DisplayList(pHead);
 			break;
 		case 6:
 			// Programm beenden
@@ -315,24 +311,6 @@ Person* SortList(Person* pHead)
 		break;
 	}
 
-
-
-
-
-	//// Liste ausgeben
-	Person* pLast = pHead->pPrev;
-	for (struPerson* pHeadx = pHead; pHeadx != pLast; pHeadx = pHeadx->pNext)
-	{
-		printf("Gender = %c\n", pHeadx->Gender[0]);
-		printf("LastName = %c\n", pHeadx->LastName[0]);
-		printf("FirstName = %c\n", pHeadx->FirstName[0]);
-		printf("Vintage = %i\n", pHeadx->Vintage);
-	}
-	printf("Gender = %c\n", pLast->Gender[0]);
-	printf("LastName = %c\n", pLast->LastName[0]);
-	printf("FirstName = %c\n", pLast->FirstName[0]);
-	printf("Vintage = %i\n", pLast->Vintage);
-
 	return pHead;
 }
 
@@ -467,4 +445,35 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 
 	if (pHead1 == pLast) pLast = pHead2;
 	else if (pHead2 == pLast) pLast = pHead1;
+}
+
+// Liste Ausgeben
+//****************
+
+void DisplayList(Person* pHead)
+{
+	int numberOfElements;
+	int counter = 0;
+
+	printf("\nWie viele Elemente moechten Sie ausgeben?\n\n");
+	printf("Anzahl Elemente   > ");
+	scanf_s("%i", &numberOfElements);
+	_fgetchar();
+
+	pHead = pHead->pPrev;
+	Person * pLast = pHead;
+
+	printf("\n| Geschlecht  |  Nachname   |   Vorname   |  Jahrgang   |\n");
+	printf("|-------------|-------------|-------------|-------------|\n");
+	
+
+	do
+	{
+		pHead = pHead->pNext;
+
+		printf("|      %c      |      %c      |      %c      |    %i     |\n", pHead->Gender[0], pHead->LastName[0], pHead->FirstName[0], pHead->Vintage);
+
+		counter++;
+
+	} while (pHead != pLast || counter == numberOfElements);
 }
