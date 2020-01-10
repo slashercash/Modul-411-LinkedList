@@ -14,10 +14,10 @@ typedef struct Person {
 	struct Person* pPrev;
 } struPerson;
 
-Person* CreateList();
-Person* DeleteList(Person*);
-Person* DeleteSpecificElement(Person*);
-Person* Delete(Person*, char[], char[], char[], int);
+Person* CreateList(Person*, int&);
+Person* DeleteList(Person*, int&);
+Person* DeleteSpecificElement(Person*, int&);
+Person* Delete(Person*, char[], char[], char[], int, int&);
 Person* Delete(Person*);
 Person* SortList(Person*);
 Person* Sort(void (*f)(Person*&, Person*&, Person*&), Person*);
@@ -26,7 +26,7 @@ int GetUsersChoice();
 char GetRandomGender();
 char GetRandomCharacter();
 void DisplayList(Person*);
-void ShowMenu();
+void ShowMenu(int);
 void SortGenderAsc(Person*&, Person*&, Person*&);
 void SortGenderDesc(Person*&, Person*&, Person*&);
 void SortLastNameAsc(Person*&, Person*&, Person*&);
@@ -42,26 +42,27 @@ int main()
 	// Initialize the pseudo-random number-generator and use the current time since midnight in milliseconds as the seed
 	srand((unsigned)time(NULL));
 	Person* pHead = NULL;
+	int numberOfElements = 0;
 
 	int repeat = 1;
 
 	while (repeat == 1)
 	{
-		ShowMenu();
+		ShowMenu(numberOfElements);
 
 		switch (GetUsersChoice())
 		{
 		case 1:
 			// Liste erstellen
-			pHead = CreateList();
+			pHead = CreateList(pHead, numberOfElements);
 			break;
 		case 2:
 			// Liste loeschen
-			pHead = DeleteList(pHead);
+			pHead = DeleteList(pHead, numberOfElements);
 			break;
 		case 3:
 			// Spezifisches Element loeschen
-			pHead = DeleteSpecificElement(pHead);
+			pHead = DeleteSpecificElement(pHead, numberOfElements);
 			break;
 		case 4:
 			// Liste sortieren
@@ -76,29 +77,38 @@ int main()
 			repeat = 0;
 			break;
 		case 0:
-			printf("Ungueltige Eingabe\n");
+			printf("\n  ----ungueltige Eingabe---- \n");
 			break;
 		}
 	}
 
+	printf("\n  --------------------------\n");
+	printf("       Programm beendet\n");
+	printf("  --------------------------\n\n");
 	system("Pause");
 }
 
-void ShowMenu()
+void ShowMenu(int numberOfElements)
 {
-	printf("Liste erstellen   > 1\n");
-	printf("Liste loeschen    > 2\n");
-	printf("Elemente loeschen > 3\n");
-	printf("Liste sortieren   > 4\n");
-	printf("Liste ausgeben    > 5\n");
-	printf("Programm beenden  > 6\n");
+	printf("  __  __                     \n");
+	printf(" |  \\/  |  ___  _ __   _   _ \n");
+	printf(" | |\\/| | / _ \\| '_ \\ | | | |\n");
+	printf(" | |  | ||  __/| | | || |_| |\n");
+	printf(" |_|  |_| \\___||_| |_| \\__,_|\n\n");
+	printf("  %i Elemente in der Liste\n\n", numberOfElements);
+	printf("  Neue Liste erstellen   > 1\n");
+	printf("  Liste loeschen         > 2\n");
+	printf("  Elemente loeschen      > 3\n");
+	printf("  Liste sortieren        > 4\n");
+	printf("  Liste ausgeben         > 5\n");
+	printf("  Programm beenden       > 6\n");
 }
 
 int GetUsersChoice()
 {
 	int command = 0;
 
-	printf("\nIhre Auswahl      > ");
+	printf("\n  Ihre Auswahl           > ");
 	scanf_s("%i", &command);
 	_fgetchar();
 
@@ -120,19 +130,27 @@ int GetUsersChoice()
 // Liste erstellen
 //*****************
 
-Person* CreateList()
+Person* CreateList(Person* pHead, int &numberOfElements)
 {
-	int numberOfPersons = 0;
-	struPerson* pFirst = NULL;
+	if(numberOfElements > 0) pHead = DeleteList(pHead, numberOfElements);
+
+	struPerson* pFirst = pHead;
 	struPerson* pStart = NULL;
 	struPerson* pEnd = NULL;
 
-	printf("Wie viele Personen moechten Sie generieren? ");
-	scanf_s("%i", &numberOfPersons);
-	_fgetchar();
+	printf("\n\n  ------ Liste erstellen ------\n");
+
+	while (numberOfElements <= 0)
+	{
+		printf("\n  Anzahl Personen          > ");
+		scanf_s("%i", &numberOfElements);
+		_fgetchar();
+
+		if(numberOfElements <= 0) printf("\n  ----ungueltige Eingabe---- \n");
+	}
 
 	// Elemente erzeugen, mit Daten abfüllen
-	for (int i = 0; i < numberOfPersons; i++) {
+	for (int i = 0; i < numberOfElements; i++) {
 		struPerson* pElement = (struPerson*)malloc(sizeof(struPerson));
 
 		pElement->Gender[0] = GetRandomGender();
@@ -147,7 +165,7 @@ Person* CreateList()
 		{
 			pFirst = pElement;
 		}
-		else if (i + 1 != numberOfPersons)
+		else if (i + 1 != numberOfElements)
 		{
 			pElement->pPrev = pStart;
 			pStart->pNext = pElement;
@@ -162,6 +180,15 @@ Person* CreateList()
 		pStart = pElement;
 
 	}
+
+	if (numberOfElements == 1)
+	{
+		pFirst->pNext = pFirst;
+		pFirst->pPrev = pFirst;
+	}
+
+	printf("\n  %i Personen wurden generiert", numberOfElements);
+	printf("\n  -----------------------------\n\n");
 
 	return pFirst;
 }
@@ -184,8 +211,17 @@ int GetRandomVintage()
 // Liste loeschen
 //****************
 
-Person* DeleteList(Person* pHead)
+Person* DeleteList(Person* pHead, int &numberOfElements)
 {
+	printf("\n\n  ----- Liste loeschen -----\n\n");
+
+	if (pHead == NULL)
+	{
+		printf("    Liste ist bereits leer\n");
+		printf("  --------------------------\n\n");
+		return NULL;
+	}
+
 	int deleteCounter = 0;
 	Person* pLast = pHead->pPrev;
 	Person* pTmp = pHead;
@@ -197,7 +233,10 @@ Person* DeleteList(Person* pHead)
 		free(pDelete);
 		deleteCounter++;
 	}
-	printf("\nListe wurde geloescht. Anzahl: %i\n", deleteCounter);
+	printf("  %i Elemente geloescht\n", deleteCounter);
+	printf("  --------------------------\n\n");
+
+	numberOfElements = 0;
 
 	return NULL;
 }
@@ -205,34 +244,42 @@ Person* DeleteList(Person* pHead)
 // Spezifisches Element loeschen
 //*******************************
 
-Person* DeleteSpecificElement(Person* pHead)
+Person* DeleteSpecificElement(Person* pHead, int &numberOfElements)
 {
-	char gender[3];
+	char gender[3] {'x','x','x'};
 	char lastName[50];
 	char firstName[50];
-	int vintage;
+	int vintage = 0;
 
-	printf("\nWelche Personen moechten Sie loeschen?\n");
+	printf("\n\n  ---- Elemente loeschen ---\n\n");
 
-	printf("\nGeschlecht [m/f]  > ");
-	fgets(gender, sizeof(gender), stdin);
+	while (gender[0] != 'M' && gender[0] != 'F')
+	{
+		printf("  Geschlecht [M/F]       > ");
+		fgets(gender, sizeof(gender), stdin);
+		if (gender[0] != 'M' && gender[0] != 'F') printf("\n  ----ungueltige Eingabe---- \n\n");
+	}
 
-	printf("Nachname          > ");
+	printf("  Nachname               > ");
 	fgets(lastName, sizeof(lastName), stdin);
 
-	printf("Vorname           > ");
+	printf("  Vorname                > ");
 	fgets(firstName, sizeof(firstName), stdin);
 
-	printf("Jahrgang          > ");
-	scanf_s("%i", &vintage);
-	_fgetchar();
+	while (vintage < 1900 || vintage > 2020)
+	{
+		printf("  Jahrgang [1990 - 2020] > ");
+		scanf_s("%i", &vintage);
+		_fgetchar();
+		if (vintage < 1900 || vintage > 2020) printf("\n  ----ungueltige Eingabe---- \n\n");
+	}
 
 	char* token = NULL;
 
-	return Delete(pHead, strtok_s(gender, "\n", &token), strtok_s(lastName, "\n", &token), strtok_s(firstName, "\n", &token), vintage);
+	return Delete(pHead, strtok_s(gender, "\n", &token), strtok_s(lastName, "\n", &token), strtok_s(firstName, "\n", &token), vintage, numberOfElements);
 }
 
-Person* Delete(Person* pHead, char gender[], char lastName[], char firstName[], int vintage)
+Person* Delete(Person* pHead, char gender[], char lastName[], char firstName[], int vintage, int &numberOfElements)
 {
 	int deleteCounter = 0;
 	int loop = 1;
@@ -254,7 +301,10 @@ Person* Delete(Person* pHead, char gender[], char lastName[], char firstName[], 
 		pHead = pHead->pNext;
 	}
 
-	printf("%d %s %s deleted\n\n", deleteCounter, deleteCounter > 1 ? "people" : "person", deleteCounter > 1 ? "were" : "was");
+	printf("\n  %i Elemente geloescht", deleteCounter);
+	printf("\n  --------------------------\n\n");
+
+	numberOfElements = numberOfElements - deleteCounter;
 
 	return pHead;
 }
@@ -278,22 +328,41 @@ Person* SortList(Person* pHead)
 	int sortBy = 0;
 	int direction = 0;
 
-	printf("\nNach welchem Kriterium moechten Sie sortieren?\n\n");
-	printf("Geschlecht        > 1\n");
-	printf("Nachname          > 2\n");
-	printf("Vorname           > 3\n");
-	printf("Jahrgang          > 4\n");
-	printf("\nIhre Auswahl      > ");
-	scanf_s("%i", &sortBy);
-	_fgetchar();
+	printf("\n\n  ---- Liste sortieren -----\n\n");
 
-	printf("\nMoechten Sie auf- oder absteigend sortieren?\n\n");
-	printf("Aufsteigend       > 1\n");
-	printf("Absteigend        > 2\n");
-	printf("\nIhre Auswahl      > ");
-	scanf_s("%i", &direction);
-	_fgetchar();
+	if (pHead == NULL)
+	{
+		printf("   Keine Elemente in Liste\n");
+		printf("  --------------------------\n\n");
+		return NULL;
+	}
 
+	printf("  Geschlecht             > 1\n");
+	printf("  Nachname               > 2\n");
+	printf("  Vorname                > 3\n");
+	printf("  Jahrgang               > 4\n\n");
+
+	while (sortBy < 1 || sortBy > 4)
+	{
+		printf("  Sortieren nach         > ");
+		scanf_s("%i", &sortBy);
+		_fgetchar();
+		if (sortBy < 1 || sortBy > 4) printf("\n  ----ungueltige Eingabe---- \n\n");
+	}
+
+	printf("\n  --------------------------\n\n");
+	printf("  Aufsteigend            > 1\n");
+	printf("  Absteigend             > 2\n\n");
+
+	while (direction < 1 || direction > 2)
+	{
+		printf("  Ihre Auswahl           > ");
+		scanf_s("%i", &direction);
+		_fgetchar();
+		if (direction < 1 || direction > 2) printf("\n  ----ungueltige Eingabe---- \n\n");
+	}
+
+	printf("\n  Sortierung laeuft...\n");
 
 	switch (sortBy)
 	{
@@ -321,6 +390,8 @@ Person* Sort(void(*f)(Person*&, Person*&, Person*&), Person* pHead)
 	Person* pHead2 = pHead;
 	Person* pLast = pHead;
 
+	clock_t startTime = clock();
+
 	do
 	{
 		pHead1 = pHead1->pNext;
@@ -333,6 +404,13 @@ Person* Sort(void(*f)(Person*&, Person*&, Person*&), Person* pHead)
 		while (pHead2 != pLast);
 	} 
 	while (pHead1 != pLast);
+
+	clock_t endTime = clock();
+	double timeSpent = ((double)endTime - (double)startTime) / CLOCKS_PER_SEC;
+
+	printf("\n  ----- Liste sortiert -----\n");
+	printf("\n  Dauer %.2f Sekunden", timeSpent);
+	printf("\n  --------------------------\n\n");
 
 	return pLast->pNext;
 }
@@ -452,28 +530,45 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 
 void DisplayList(Person* pHead)
 {
-	int numberOfElements;
+	int numberOfElements = -1;
 	int counter = 0;
 
-	printf("\nWie viele Elemente moechten Sie ausgeben?\n\n");
-	printf("Anzahl Elemente   > ");
-	scanf_s("%i", &numberOfElements);
-	_fgetchar();
+	printf("\n\n  -------- Liste ausgeben --------\n\n");
+
+	if (pHead == NULL)
+	{
+		printf("      Keine Elemente in Liste\n");
+		printf("  --------------------------------\n\n");
+		return;
+	}
+
+	while (numberOfElements < 0)
+	{
+		printf("  Anzahl Elemente [0 = alle] > ");
+		scanf_s("%i", &numberOfElements);
+		_fgetchar();
+		if (numberOfElements < 0) printf("\n  -------ungueltige Eingabe------- \n\n");
+	}
+
+	printf("  --------------------------------\n\n");
 
 	pHead = pHead->pPrev;
 	Person * pLast = pHead;
 
-	printf("\n| Geschlecht  |  Nachname   |   Vorname   |  Jahrgang   |\n");
-	printf("|-------------|-------------|-------------|-------------|\n");
+	printf("\n  | Geschlecht  |  Nachname   |   Vorname   |  Jahrgang   |\n");
+	printf("  |-------------|-------------|-------------|-------------|\n");
 	
-
 	do
 	{
 		pHead = pHead->pNext;
 
-		printf("|      %c      |      %c      |      %c      |    %i     |\n", pHead->Gender[0], pHead->LastName[0], pHead->FirstName[0], pHead->Vintage);
+		printf("  |      %c      |      %c      |      %c      |    %i     |\n", pHead->Gender[0], pHead->LastName[0], pHead->FirstName[0], pHead->Vintage);
 
 		counter++;
 
-	} while (pHead != pLast || counter == numberOfElements);
+	} while (pHead != pLast && counter != numberOfElements);
+
+	printf("\n\n  --------------------------\n");
+	printf("  %i Elemente ausgegeben\n", counter);
+	printf("  --------------------------\n\n");
 }
