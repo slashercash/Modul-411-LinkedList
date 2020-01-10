@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
-#include <time.h>
-#include <string.h>
+#include "time.h"
+#include "string.h"
 
 #pragma warning(disable:6011)
 
@@ -37,9 +37,11 @@ void SortVintageAsc(Person*&, Person*&, Person*&);
 void SortVintageDesc(Person*&, Person*&, Person*&);
 void SwitchElements(Person*&, Person*&, Person*&);
 
+
+// Autor:    David Zweili
+// Funktion: Menu anzeigen, Benutzereingabe einlesen und reagieren
 int main()
 {
-	// Initialize the pseudo-random number-generator and use the current time since midnight in milliseconds as the seed
 	srand((unsigned)time(NULL));
 	Person* pHead = NULL;
 	int numberOfElements = 0;
@@ -77,6 +79,7 @@ int main()
 			repeat = 0;
 			break;
 		case 0:
+			// ungueltige Eingabe
 			printf("\n  ----ungueltige Eingabe---- \n");
 			break;
 		}
@@ -88,6 +91,8 @@ int main()
 	system("Pause");
 }
 
+// Autor:    David Zweili
+// Funktion: Menukopf anzeigen
 void ShowMenu(int numberOfElements)
 {
 	printf("  __  __                     \n");
@@ -104,14 +109,18 @@ void ShowMenu(int numberOfElements)
 	printf("  Programm beenden       > 6\n");
 }
 
+// Autor:    David Zweili
+// Funktion: Eingabe des Benutzers auslesen
 int GetUsersChoice()
 {
 	int command = 0;
 
+	// Eingabe auslesen
 	printf("\n  Ihre Auswahl           > ");
 	scanf_s("%i", &command);
 	_fgetchar();
 
+	// Eingabe pruefen
 	if (command == 1 ||
 		command == 2 ||
 		command == 3 ||
@@ -130,8 +139,11 @@ int GetUsersChoice()
 // Liste erstellen
 //*****************
 
+// Autor:    David Zweili
+// Funktion: Liste generieren
 Person* CreateList(Person* pHead, int &numberOfElements)
 {
+	// Alte Liste loeschen falls eine existiert
 	if(numberOfElements > 0) pHead = DeleteList(pHead, numberOfElements);
 
 	struPerson* pFirst = pHead;
@@ -140,6 +152,7 @@ Person* CreateList(Person* pHead, int &numberOfElements)
 
 	printf("\n\n  ------ Liste erstellen ------\n");
 
+	// Anzahl zu erstellende Elemente per Benutzereingabe auslesen und Eingabe ueberpruefen
 	while (numberOfElements <= 0)
 	{
 		printf("\n  Anzahl Personen          > ");
@@ -149,7 +162,7 @@ Person* CreateList(Person* pHead, int &numberOfElements)
 		if(numberOfElements <= 0) printf("\n  ----ungueltige Eingabe---- \n");
 	}
 
-	// Elemente erzeugen, mit Daten abfüllen
+	// Elemente erzeugen und mit Daten abfüllen
 	for (int i = 0; i < numberOfElements; i++) {
 		struPerson* pElement = (struPerson*)malloc(sizeof(struPerson));
 
@@ -163,26 +176,29 @@ Person* CreateList(Person* pHead, int &numberOfElements)
 
 		if (i == 0)
 		{
+			// Das erste Element zwischenspeichern, um es am Schluss mit dem letzten Element wieder zu verlinken.
 			pFirst = pElement;
 		}
 		else if (i + 1 != numberOfElements)
 		{
+			// Generiertes Element in die Liste verlinken
 			pElement->pPrev = pStart;
 			pStart->pNext = pElement;
 		}
 		else
 		{
+			// letztes Element mit dem ersten verlinken
 			pElement->pPrev = pStart;
 			pStart->pNext = pElement;
 			pElement->pNext = pFirst;
 			pFirst->pPrev = pElement;
 		}
 		pStart = pElement;
-
 	}
 
 	if (numberOfElements == 1)
 	{
+		// Wenn nur ein Element generiert wird, dieses mit sich selber verlinken
 		pFirst->pNext = pFirst;
 		pFirst->pPrev = pFirst;
 	}
@@ -193,16 +209,22 @@ Person* CreateList(Person* pHead, int &numberOfElements)
 	return pFirst;
 }
 
+// Autor:    David Zweili
+// Funktion: Gibt zufaelliges Geschlecht zurueck
 char GetRandomGender()
 {
 	return "MF"[rand() % 2];
 }
 
+// Autor:    David Zweili
+// Funktion: Gibt zufaelligen Grossbuchstabe zurueck
 char GetRandomCharacter()
 {
 	return 'A' + (rand() % 26);
 }
 
+// Autor:    David Zweili
+// Funktion: Gibt zufaelligen Jahrgang zurueck
 int GetRandomVintage()
 {
 	return 1900 + (rand() % 120);
@@ -211,10 +233,13 @@ int GetRandomVintage()
 // Liste loeschen
 //****************
 
+// Autor:    David Zweili
+// Funktion: Gesamte Liste loeschen
 Person* DeleteList(Person* pHead, int &numberOfElements)
 {
 	printf("\n\n  ----- Liste loeschen -----\n\n");
 
+	// Ueberpruefen ob die Liste Elemente beinhaltet.
 	if (pHead == NULL)
 	{
 		printf("    Liste ist bereits leer\n");
@@ -226,6 +251,7 @@ Person* DeleteList(Person* pHead, int &numberOfElements)
 	Person* pLast = pHead->pPrev;
 	Person* pTmp = pHead;
 
+	// Speicher von jedem Element in der Liste freigeben
 	while (pTmp != NULL)
 	{
 		Person* pDelete = pTmp;
@@ -244,6 +270,8 @@ Person* DeleteList(Person* pHead, int &numberOfElements)
 // Spezifisches Element loeschen
 //*******************************
 
+// Autor:    David Zweili
+// Funktion: Elemente aufgrund Eingrenzung des Benutzers loeschen
 Person* DeleteSpecificElement(Person* pHead, int &numberOfElements)
 {
 	char gender[3] {'x','x','x'};
@@ -253,6 +281,7 @@ Person* DeleteSpecificElement(Person* pHead, int &numberOfElements)
 
 	printf("\n\n  ---- Elemente loeschen ---\n\n");
 
+	// Geschlecht aus Benutzereingabe auslesen und ueberpruefen
 	while (gender[0] != 'M' && gender[0] != 'F')
 	{
 		printf("  Geschlecht [M/F]       > ");
@@ -260,12 +289,14 @@ Person* DeleteSpecificElement(Person* pHead, int &numberOfElements)
 		if (gender[0] != 'M' && gender[0] != 'F') printf("\n  ----ungueltige Eingabe---- \n\n");
 	}
 
+	// Nachname und Vorname aus Benutzereingabe auslesen
 	printf("  Nachname               > ");
 	fgets(lastName, sizeof(lastName), stdin);
 
 	printf("  Vorname                > ");
 	fgets(firstName, sizeof(firstName), stdin);
 
+	// Jahrgang aus Benutzereingabe auslesen und ueberpruefen
 	while (vintage < 1900 || vintage > 2020)
 	{
 		printf("  Jahrgang [1990 - 2020] > ");
@@ -274,17 +305,20 @@ Person* DeleteSpecificElement(Person* pHead, int &numberOfElements)
 		if (vintage < 1900 || vintage > 2020) printf("\n  ----ungueltige Eingabe---- \n\n");
 	}
 
+	// Elemente loeschen und HEAD zurueckgeben
 	char* token = NULL;
-
 	return Delete(pHead, strtok_s(gender, "\n", &token), strtok_s(lastName, "\n", &token), strtok_s(firstName, "\n", &token), vintage, numberOfElements);
 }
 
+// Autor:    David Zweili
+// Funktion: Elemente mit zutreffenden Parametern loeschen
 Person* Delete(Person* pHead, char gender[], char lastName[], char firstName[], int vintage, int &numberOfElements)
 {
 	int deleteCounter = 0;
 	int loop = 1;
 	Person* pLast = pHead->pPrev;
 
+	// Alle Elemente aus Liste mit den Parametern vergleichen und bei Ueberenstimmung loeschen
 	while (loop == 1)
 	{
 		loop = pHead == pLast ? 0 : 1;
@@ -309,12 +343,17 @@ Person* Delete(Person* pHead, char gender[], char lastName[], char firstName[], 
 	return pHead;
 }
 
+// Autor:    David Zweili
+// Funktion: Person loeschen und neuen HEAD zurueckgeben
 Person* Delete(Person* pHead)
 {
 	Person* pNewHead = pHead->pNext;
 
+	// Element vor und Element nach dem zu loeschenden Element miteinander verlinken
 	pHead->pNext->pPrev = pHead->pPrev;
 	pHead->pPrev->pNext = pHead->pNext;
+
+	// Speicherplatz von zu loeschendem Element freigeben
 	free(pHead);
 
 	return pNewHead;
@@ -323,6 +362,8 @@ Person* Delete(Person* pHead)
 // Liste Sortieren
 //*****************
 
+// Autor:    David Zweili
+// Funktion: 
 Person* SortList(Person* pHead)
 {
 	int sortBy = 0;
@@ -330,6 +371,7 @@ Person* SortList(Person* pHead)
 
 	printf("\n\n  ---- Liste sortieren -----\n\n");
 
+	// Ueberpruefen ob die Liste Elemente enthaelt
 	if (pHead == NULL)
 	{
 		printf("   Keine Elemente in Liste\n");
@@ -342,6 +384,7 @@ Person* SortList(Person* pHead)
 	printf("  Vorname                > 3\n");
 	printf("  Jahrgang               > 4\n\n");
 
+	// Sortierparameter aus Benutzereingabe auslesen und ueberpruefen
 	while (sortBy < 1 || sortBy > 4)
 	{
 		printf("  Sortieren nach         > ");
@@ -354,6 +397,7 @@ Person* SortList(Person* pHead)
 	printf("  Aufsteigend            > 1\n");
 	printf("  Absteigend             > 2\n\n");
 
+	// Sortierrichtung aus Benutzereingabe auslesen und ueberpruefen
 	while (direction < 1 || direction > 2)
 	{
 		printf("  Ihre Auswahl           > ");
@@ -364,6 +408,7 @@ Person* SortList(Person* pHead)
 
 	printf("\n  Sortierung laeuft...\n");
 
+	// ausgewaehlter Sortieralgorithmus anstossen
 	switch (sortBy)
 	{
 	case 1:
@@ -383,15 +428,18 @@ Person* SortList(Person* pHead)
 	return pHead;
 }
 
-
+// Autor:    David Zweili
+// Funktion: Sortierung der Liste durchfuehren
 Person* Sort(void(*f)(Person*&, Person*&, Person*&), Person* pHead)
 {
 	Person* pHead1 = pHead;
 	Person* pHead2 = pHead;
 	Person* pLast = pHead;
 
+	// Startzeit merken
 	clock_t startTime = clock();
 
+	// Bubblesort (Alle Elemente kubisch miteinander vergleichen)
 	do
 	{
 		pHead1 = pHead1->pNext;
@@ -399,15 +447,16 @@ Person* Sort(void(*f)(Person*&, Person*&, Person*&), Person* pHead)
 		{
 			pHead2 = pHead2->pNext;
 
+			// Funktion aufrufen um Elemente zu vergleichen
 			(*f)(pHead1, pHead2, pLast);
 		} 
 		while (pHead2 != pLast);
 	} 
 	while (pHead1 != pLast);
 
+	// Endzeit mit Startzeit vergleichen um Dauer der Sortierung auszugeben
 	clock_t endTime = clock();
 	double timeSpent = ((double)endTime - (double)startTime) / CLOCKS_PER_SEC;
-
 	printf("\n  ----- Liste sortiert -----\n");
 	printf("\n  Dauer %.2f Sekunden", timeSpent);
 	printf("\n  --------------------------\n\n");
@@ -415,6 +464,8 @@ Person* Sort(void(*f)(Person*&, Person*&, Person*&), Person* pHead)
 	return pLast->pNext;
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Geschlaecht aufsteigend
 void SortGenderAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->Gender[0] < pHead2->Gender[0])
@@ -423,6 +474,8 @@ void SortGenderAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Geschlaecht absteigend
 void SortGenderDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->Gender[0] > pHead2->Gender[0])
@@ -431,6 +484,8 @@ void SortGenderDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Nachname aufsteigend
 void SortLastNameAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->LastName[0] < pHead2->LastName[0])
@@ -439,6 +494,8 @@ void SortLastNameAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Nachname absteigend
 void SortLastNameDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->LastName[0] > pHead2->LastName[0])
@@ -447,6 +504,8 @@ void SortLastNameDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Vorname aufsteigend
 void SortFirstNameAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->FirstName[0] < pHead2->FirstName[0])
@@ -455,6 +514,8 @@ void SortFirstNameAsc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Vorname absteigend
 void SortFirstNameDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->FirstName[0] > pHead2->FirstName[0])
@@ -463,6 +524,8 @@ void SortFirstNameDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Jahrgang aufsteigend
 void SortVintageAsc(Person* &pHead1, Person* &pHead2, Person* &pLast)
 {
 	if (pHead1->Vintage < pHead2->Vintage)
@@ -471,6 +534,8 @@ void SortVintageAsc(Person* &pHead1, Person* &pHead2, Person* &pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Sortieren nach Jahrgang absteigend
 void SortVintageDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	if (pHead1->Vintage > pHead2->Vintage)
@@ -479,6 +544,8 @@ void SortVintageDesc(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 }
 
+// Autor:    David Zweili
+// Funktion: Position zweier Elemente in Liste tauschen
 void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 {
 	Person* pTmp1Prev = pHead1->pPrev;
@@ -488,6 +555,7 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 
 	if (pHead1->pNext == pHead2)
 	{
+		// zu tauschende Elemente befinden sich nacheinander
 		pHead1->pNext = pTmp2Next;
 		pHead1->pPrev = pHead2;
 
@@ -496,6 +564,7 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 	else if (pHead2->pNext == pHead1)
 	{
+		// Pointerverlinkung wenn zu tauschende Elemente sich nacheinander befinden
 		pHead1->pNext = pHead2;
 		pHead1->pPrev = pTmp2Prev;
 
@@ -504,6 +573,7 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 	}
 	else
 	{
+		// Pointerverlinkung wenn zu tauschende Elemente mindestens ein Element dazwischen haben
 		pHead1->pNext = pTmp2Next;
 		pHead1->pPrev = pTmp2Prev;
 
@@ -511,16 +581,19 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 		pHead2->pPrev = pTmp1Prev;
 	}
 
+	// Pointer der Anliegenden Elemente anpassen
 	pHead1->pPrev->pNext = pHead1;
 	pHead1->pNext->pPrev = pHead1;
 
 	pHead2->pPrev->pNext = pHead2;
 	pHead2->pNext->pPrev = pHead2;
 
+	// pHead1 und pHead2 tauschen, um die Bubbesort Vergleichreihenfolge nicht zu veraendern
 	Person* pTmp = pHead1;
 	pHead1 = pHead2;
 	pHead2 = pTmp;
 
+	// pLast ebenfalls tauschen, damit der Bubblesort weiss wann er das letzte zu vergleichende Element erreicht hat
 	if (pHead1 == pLast) pLast = pHead2;
 	else if (pHead2 == pLast) pLast = pHead1;
 }
@@ -528,6 +601,8 @@ void SwitchElements(Person*& pHead1, Person*& pHead2, Person*& pLast)
 // Liste Ausgeben
 //****************
 
+// Autor:    David Zweili
+// Funktion: gesamte Liste anzeigen
 void DisplayList(Person* pHead)
 {
 	int numberOfElements = -1;
@@ -535,6 +610,7 @@ void DisplayList(Person* pHead)
 
 	printf("\n\n  -------- Liste ausgeben --------\n\n");
 
+	// ueberpruefen ob Liste Elemente enthaelt.
 	if (pHead == NULL)
 	{
 		printf("      Keine Elemente in Liste\n");
@@ -542,6 +618,7 @@ void DisplayList(Person* pHead)
 		return;
 	}
 
+	// Anzahl auszugebende Elemente aus Benutzereingabe auslesen und ueberpruefen
 	while (numberOfElements < 0)
 	{
 		printf("  Anzahl Elemente [0 = alle] > ");
@@ -551,13 +628,12 @@ void DisplayList(Person* pHead)
 	}
 
 	printf("  --------------------------------\n\n");
-
-	pHead = pHead->pPrev;
-	Person * pLast = pHead;
-
 	printf("\n  | Geschlecht  |  Nachname   |   Vorname   |  Jahrgang   |\n");
 	printf("  |-------------|-------------|-------------|-------------|\n");
-	
+
+	// alle Elemente ausgeben
+	pHead = pHead->pPrev;
+	Person* pLast = pHead;
 	do
 	{
 		pHead = pHead->pNext;
